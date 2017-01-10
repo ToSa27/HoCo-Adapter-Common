@@ -1,5 +1,9 @@
 var logger = function() {};
 
+logger.prototype.debug = function(msg) {
+        console.log("DEBUG: " + msg);
+};
+
 logger.prototype.info = function(msg) {
 	console.log("INFO: " + msg);
 };

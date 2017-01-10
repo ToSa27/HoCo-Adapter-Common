@@ -1,12 +1,13 @@
 const config = require("./config.js");
 const log = require("./log.js");
 const Bus = require("./bus.js");
+const stringify = require('json-stringify-safe');
 
 var Adapter = {};
 for (var i = 0; i < config.adapter.length; i++) {
 	if (!Adapter[config.adapter[i].module]) {
 		Adapter[config.adapter[i].module] = require(process.cwd() + "/" + config.adapter[i].module + ".js");
-		log.info("loading adapter module: " + config.adapter[i].module);
+		log.debug("loading adapter module: " + config.adapter[i].module);
 	}
 }
 
@@ -21,24 +22,45 @@ for (var i = 0; i < config.adapter.length; i++) {
 		theadapter.bus = bus;
 
 		bus.on("connected", (thebus) => {
-		        log.info("bus connected");
+		        log.debug("bus connected");
 			if (thebus.adapter.connected)
                         	thebus.adapterSend("status", "online", {}, 0, false);
 	        });
 
         	bus.on("adapter", (thebus, command, message) => {
-                	log.info("bus adapter command: " + command + ": " + message);
+                	log.debug("bus adapter command: " + command + ": " + message);
                 	thebus.adapter.adapter(command, message);
         	});
 
         	bus.on("node", (thebus, nodeid, command, message) => {
-                	log.info("bus node command: " + command + " for " + nodeid + ": " + message);
+                	log.debug("bus node command: " + command + " for " + nodeid + ": " + message);
                 	thebus.adapter.node(nodeid, command, message);
         	});
 
 	        bus.on("parameter", (thebus, nodeid, parameterid, command, message) => {
-        	        log.info("bus parameter command: " + command + " for " + nodeid + "/" + parapeterid + ": " + message);
+        	        log.debug("bus parameter command: " + command + " for " + nodeid + "/" + parameterid + ": " + message);
                 	thebus.adapter.parameter(nodeid, parameterid, command, message);
         	});
 	});
+
+	adapter.on("node added", (theadapter, nodeid, data) => {
+		theadapter.bus.nodeSend(nodeid, "status", "online", data);
+	});
+
+        adapter.on("node removed", (theadapter, nodeid, data) => {
+                theadapter.bus.nodeSend(nodeid, "status", "offline", data);
+        });
+
+        adapter.on("parameter added", (theadapter, nodeid, parameterid, data) => {
+                theadapter.bus.parameterSend(nodeid, parameterid, "status", "online", data);
+        });
+
+        adapter.on("parameter value", (theadapter, nodeid, parameterid, value, data) => {
+                theadapter.bus.parameterSend(nodeid, parameterid, "", value, data);
+        });
+
+        adapter.on("parameter removed", (theadapter, nodeid, parameterid, data) => {
+                theadapter.bus.parameterSend(nodeid, parameterid, "status", "offline", data);
+        });
+
 }
