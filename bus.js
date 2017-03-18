@@ -59,12 +59,16 @@ function Bus(config, adapter) {
 		self.emit("error", self, err);
 	});
 
-// packetreceive
-// packetsend
-// outgoingEmpty
+	this.mqtt.on('packetsend', function(packet) {
+		//log.debug("bus packetsend: " + JSON.stringify(packet));
+	});
 
-	this.mqtt.on('message', function (topic, message) {
-		log.debug("bus rx: " + topic + " = " + message);
+	this.mqtt.on('packetreceive', function(packet) {
+		//log.debug("bus packetreceive: " + JSON.stringify(packet));
+	});
+
+	this.mqtt.on('message', function (topic, message, packet) {
+		//log.debug("bus message: " + topic + " = " + message);
                 if (topic.startsWith(self.config.prefix + "/$")) {
 			var topicParts = topic.substring(self.config.prefix.length + 1).split('/');
 			switch (topicParts[0]) {
@@ -113,7 +117,6 @@ Bus.prototype.connected = function() {
 
 Bus.prototype.send = function(topic, value, data, qos = 0, retain = true) {
 	if (this.connected) {
-log.debug("there");
 		this.mqtt.publish(this.prefix + "/" + topic, JSON.stringify({
 			val: value,
 			data: data
@@ -126,7 +129,6 @@ Bus.prototype.adapterSend = function(command, value, data, qos = 0, retain = tru
 };
 	
 Bus.prototype.nodeSend = function(nodeid, command, value, data, qos = 0, retain = true) {
-log.debug("here");
 	this.send(nodeid + "/@" + command, value, data, qos, retain);
 };
 	
@@ -135,4 +137,3 @@ Bus.prototype.parameterSend = function(nodeid, parameterid, command, value, data
 };
 
 module.exports = Bus;
-

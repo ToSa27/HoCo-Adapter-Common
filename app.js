@@ -51,6 +51,14 @@ for (var i = 0; i < config.adapter.length; i++) {
                 theadapter.bus.nodeSend(nodeid, "status", "offline", data);
         });
 
+	adapter.on("node details", (theadapter, nodeid, data) => {
+                theadapter.bus.nodeSend(nodeid, "details", "", data);
+        });
+
+        adapter.on("node parameters", (theadapter, nodeid, data) => {
+                theadapter.bus.nodeSend(nodeid, "parameters", "", data);
+        });
+
         adapter.on("parameter added", (theadapter, nodeid, parameterid, data) => {
                 theadapter.bus.parameterSend(nodeid, parameterid, "status", "online", data);
         });
