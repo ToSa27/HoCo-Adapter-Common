@@ -28,19 +28,23 @@ for (var i = 0; i < config.adapter.length; i++) {
 	        });
 
         	bus.on("adapter", (thebus, command, message) => {
-                	log.debug("bus adapter command: " + command + ": " + message);
+                	log.debug("bus adapter command: " + command + ": " + JSON.stringify(message));
                 	thebus.adapter.adapter(command, message);
         	});
 
         	bus.on("node", (thebus, nodeid, command, message) => {
-                	log.debug("bus node command: " + command + " for " + nodeid + ": " + message);
+                	log.debug("bus node command: " + command + " for " + nodeid + ": " + JSON.stringify(message));
                 	thebus.adapter.node(nodeid, command, message);
         	});
 
 	        bus.on("parameter", (thebus, nodeid, parameterid, command, message) => {
-        	        log.debug("bus parameter command: " + command + " for " + nodeid + "/" + parameterid + ": " + message);
+        	        log.debug("bus parameter command: " + command + " for " + nodeid + "/" + parameterid + ": " + JSON.stringify(message));
                 	thebus.adapter.parameter(nodeid, parameterid, command, message);
         	});
+	});
+
+	adapter.on("adapter details", (theadapter, data) => {
+		theadapter.bus.adapterSend("details", "", data);
 	});
 
 	adapter.on("node added", (theadapter, nodeid, data) => {
